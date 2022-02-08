@@ -1,4 +1,5 @@
 import Control
+from config import degStates
 
 class Servo:
     
@@ -6,6 +7,17 @@ class Servo:
         self.name = name;
         self.deg = deg;
 
-    def write(self, deg):
+    def goto(self, pos):
+        self.set(self.name, degStates[pos])
 
-        Control.writeServo(self.name, deg)
+    def down(self):
+        self.set(0)
+
+    def up(self):
+        self.set(0)
+
+    def next(self):
+        self.set(0)
+
+    def set(self, deg, time):
+        Control.servo(self.name, deg, time)

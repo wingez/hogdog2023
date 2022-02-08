@@ -1,11 +1,10 @@
-import serial
+import Serial
 
 class Control:
 
-    # def __init__(self):
+    def servo(serv, deg, speed, time):
+        msg = f"[{serv}]<{deg},{time}>"
+        Serial.write(msg)
 
-    def sendSerial(self, msg):
-        ser.write(msg)
 
-    def servoWrite(self, serv, deg):
-        
+        # "[d_arm]<39,10,30>|"
