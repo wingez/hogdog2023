@@ -7,4 +7,5 @@ class Servo:
         self.deg = deg;
 
     def write(self, deg):
-        Control.write(self.name, deg)
+
+        Control.writeServo(self.name, deg)

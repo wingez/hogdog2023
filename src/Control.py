@@ -7,4 +7,5 @@ class Control:
     def sendSerial(self, msg):
         ser.write(msg)
 
-    def servoWrite(self, serv, ):
+    def servoWrite(self, serv, deg):
+        
