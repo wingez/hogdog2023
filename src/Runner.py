@@ -1,11 +1,15 @@
-import time
-from config import servos
+import time 
+from src import servo
 
 class Runner:
     
     def __init__(self, name, seqs):
         self.name = name;
         self.seqs = seqs;
+
+    def run(self):
+        for seq in self.seqs:
+            seq.run();
 
 
 
@@ -17,7 +21,7 @@ class Sequence:
 
     def run(self):
         for op in self.ops:
-            op.run();
+            ops[op].run();
 
 
 
@@ -29,6 +33,42 @@ class Operation:
         self.wait = wait;
 
     def run(self):
-        self.fn(self.args);
+        print(f"Running {self.fn}")
+        if self.args:
+            self.fn(self.args)
+        else:
+            self.fn();
 
         time.sleep(self.wait)
+
+
+ops = {}
+
+ops["dog_to_mag"]       = Operation(5, servo.servos["d_arm"].goto, "d_mag")
+ops["dog_to_heater"]    = Operation(5, servo.servos["d_arm"].goto, "heater")
+ops["dog_to_bread"]     = Operation(5, servo.servos["d_arm"].goto, "d_final")
+ops["dog_down"]         = Operation(5, servo.servos["d_cyl"].down)
+ops["dog_up"]           = Operation(5, servo.servos["d_cyl"].up)
+ops["next_dog"]         = Operation(5, servo.servos["d_mag"].next)
+
+#TODO ops["cook_dog"]         = Operation(Heater on, None)
+
+ops["bread_to_mag"]     = Operation(100, servo.servos["b_arm"].goto, "b_mag")
+ops["bread_to_d1"]      = Operation(100, servo.servos["b_arm"].goto, "d1")
+ops["bread_to_d2"]      = Operation(100, servo.servos["b_arm"].goto, "d2")
+ops["bread_to_dog"]     = Operation(100, servo.servos["b_arm"].goto, "b_final")
+ops["next_bread"]       = Operation(100, servo.servos["b_mag"].next, None)
+
+# ops["dress1_push"]      = Operation(100, servo.servos["dress_1"].push, None)
+# ops["dress1_release"]   = Operation(100, servo.servos["dress_1"].release, None)
+# ops["dress2_push"]      = Operation(100, servo.servos["dress_2"].push, None)
+# ops["dress2_release"]   = Operation(100, servo.servos["dress_2"].release, None)
+
+
+
+dog_ops = ["dog_to_mag", "dog_down", "dog_up", "dog_to_heater", "dog_down", "cook_dog", "dog_up", "dog_to_bread", "dog_down", "dog_up", "next_dog"]
+
+dog_seq = Sequence("dog_seq", dog_ops)
+
+bread_ops1 = ["bread_to_mag", "next_bread", "bread_to_d1", "bread_to_dog"]
+bread_ops2 = ["bread_to_mag", "next_bread", "bread_to_d2", "bread_to_dog"]

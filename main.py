@@ -1,2 +1,3 @@
-import Sequencer
-import Servo
+from src import runner
+
+runner.dog_seq.run()
