@@ -2,7 +2,7 @@ from src import control
 
 class Servo:
     
-    def __init__(self, name, deg, channel):
+    def __init__(self, name, deg, channel): 
         self.name = name;
         self.channel = channel;
         self.deg = deg;

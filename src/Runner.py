@@ -55,7 +55,7 @@ ops["next_dog"]         = Operation(5, servo.servos["d_mag"].next)
 
 ops["bread_to_mag"]     = Operation(100, servo.servos["b_arm"].goto, "b_mag")
 ops["bread_to_d1"]      = Operation(100, servo.servos["b_arm"].goto, "d1")
-ops["bread_to_d2"]      = Operation(100, servo.servos["b_arm"].goto, "d2")
+ops["bread_to_d2"]      = Operation(100, servo.servos["b_arm"].goto, "d2") 
 ops["bread_to_dog"]     = Operation(100, servo.servos["b_arm"].goto, "b_final")
 ops["next_bread"]       = Operation(100, servo.servos["b_mag"].next, None)
 
