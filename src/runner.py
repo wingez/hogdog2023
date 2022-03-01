@@ -1,16 +1,61 @@
 import time 
-from src import servo
-from src import config
+from src import servo, config, heater
+from threading import Thread
+
+class Builder:
+
+    def __init__(self):
+        self.meat = True;
+        self.d1 = False;
+        self.d2 = False;
+
+    def set_d1(self):
+        self.d1 = True;
+    def reset_d1(self):
+        self.d1 = False;
+    def set_d2(self):
+        self.d2 = True;
+    def reset_d2(self):
+        self.d2 = False;
+        
+    def set_meat(self):
+        self.meat = True;
+    def reset_meat(self):
+        self.meat = False;
+
+    def build(self):
+        dog = ["meat/veg", "dog_down", "dog_up", "dog_to_heater", "dog_down", "turn_on", "dog_up", "dog_to_bread", "dog_down"];
+        bread = ["bread_to_dog", "to_dressing", "bread_to_dog"]
+        if self.d1 and self.d2:
+            bread[1] = "bread_to_d1"
+            bread.insert(2, "bread_to_d2")
+        elif self.d1 and not self.d2:
+            bread[1] = "bread_to_d1"
+        elif self.d2 and not self.d1:
+            bread[1] = "bread_to_d2"
+        
+        if self.meat:
+            dog[0] = "dog_to_meat"
+        else:
+            dog[0] = "dog_to_veg"
+
+        b_seq = Sequence("b_seq", bread)
+        d_seq = Sequence("d_seq", dog)
+
+        return Runner([b_seq, d_seq])
+
 
 class Runner:
     
-    def __init__(self, name, seqs):
-        self.name = name;
+    def __init__(self, seqs):
         self.seqs = seqs;
 
     def run(self):
-        for seq in self.seqs:
-            seq.run();
+        bread_thread = Thread(target = self.seqs[0].run)
+        dog_thread = Thread(target = self.seqs[1].run)
+
+        bread_thread.start()
+        dog_thread.start()
 
 
 
@@ -44,32 +89,24 @@ class Operation:
 
 ops = {}
 
-ops[f"dog_to_meat"] = Operation(2, servo.servos["d_arm"].goto_meat_mag)
+ops["dog_to_meat"] = Operation(2, servo.servos["d_arm"].goto_meat_mag)
 
-ops[f"dog_to_veg"] = Operation(2, servo.servos["d_arm"].goto_veg_mag)
+ops["dog_to_veg"] = Operation(2, servo.servos["d_arm"].goto_veg_mag)
 
-ops["dog_to_heater"]    = Operation(2, servo.servos["d_arm"].goto, "heater")
-ops["dog_to_bread"]     = Operation(2, servo.servos["d_arm"].goto, "d_final")
-ops["dog_down"]         = Operation(2, servo.servos["d_cyl"].down)
-ops["dog_up"]           = Operation(2, servo.servos["d_cyl"].up)
+ops["dog_to_heater"]    = Operation(1, servo.servos["d_arm"].goto, "heater")
+ops["dog_to_bread"]     = Operation(1, servo.servos["d_arm"].goto, "d_final")
+ops["dog_down"]         = Operation(0.5, servo.servos["d_cyl"].down)
+ops["dog_up"]           = Operation(0.5, servo.servos["d_cyl"].up)
 
 #TODO ops["cook_dog"]         = Operation(Heater on, None)
 
-ops["bread_to_mag"]     = Operation(100, servo.servos["b_arm"].goto, "b_mag")
-ops["bread_to_d1"]      = Operation(100, servo.servos["b_arm"].goto, "d1")
-ops["bread_to_d2"]      = Operation(100, servo.servos["b_arm"].goto, "d2") 
-ops["bread_to_dog"]     = Operation(100, servo.servos["b_arm"].goto, "b_final")
+ops["bread_to_mag"]     = Operation(2, servo.servos["b_arm"].goto, "b_mag")
+ops["bread_to_d1"]      = Operation(2, servo.servos["b_arm"].goto, "d1")
+ops["bread_to_d2"]      = Operation(2, servo.servos["b_arm"].goto, "d2") 
+ops["bread_to_dog"]     = Operation(2, servo.servos["b_arm"].goto, "b_final")
+ops["turn_on"]          = Operation(5, heater.Heater.turn_on)
 
 # ops["dress1_push"]      = Operation(100, servo.servos["dress_1"].push, None)
 # ops["dress1_release"]   = Operation(100, servo.servos["dress_1"].release, None)
 # ops["dress2_push"]      = Operation(100, servo.servos["dress_2"].push, None)
 # ops["dress2_release"]   = Operation(100, servo.servos["dress_2"].release, None)
-
-
-
-dog_ops = ["dog_to_meat", "dog_down", "dog_up", "dog_to_heater", "dog_down", "cook_dog", "dog_up", "dog_to_bread", "dog_down", "dog_up", "next_dog"]
-
-dog_seq = Sequence("dog_seq", dog_ops)
-
-bread_ops1 = ["bread_to_mag", "next_bread", "bread_to_d1", "bread_to_dog"]
-bread_ops2 = ["bread_to_mag", "next_bread", "bread_to_d2", "bread_to_dog"]

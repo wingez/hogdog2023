@@ -1,6 +1,9 @@
 import serial
 import time
 
+ser = serial.Serial('/dev/ttyACM0', 57600, timeout=1)
+ser.reset_input_buffer()
+
 class SerialHandler:
 
     def __init__(self):
@@ -10,16 +13,17 @@ class SerialHandler:
 
 
     def read(self):
-        while True:
-            input = ser.read()
-            print (input.decode("utf-8"))
+        input = "";
+        while not input:
+            input = ser.readline().strip()
+        return input.decode("utf-8")
+
+    def write(self, msg):
+        print("msg sent")
+        ser.write(f"{msg}\n".encode("utf-8"))
 
 
-ser = serial.Serial('/dev/ttyACM0', 57600, timeout=1)
-ser.reset_input_buffer()
+test = SerialHandler()
 
-while True:
-    ser.write("Hej fran RPI\n".encode("utf-8"))
-    line = ser.readline().rstrip()
-    print(line)
-    time.sleep(1)
+test.write("test");
+print(test.read());

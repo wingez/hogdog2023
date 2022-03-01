@@ -1,43 +1,31 @@
 import time
 import RPi.GPIO as GPIO
+from adafruit_servokit import ServoKit
+from src import config
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
+kit = ServoKit(channels=16)
 
 class Control:
 
-    def cservo(sch, cw, timeout, stop):
+    def cservo(sch, cw, timeout):
+        stop = False;
         tm = timeout;
 
         timeout = time.time() + timeout;
 
         if cw:
-            while time.time() < timeout:
-                if stop:
-                    break
-                Control.test(tm);
+            throttle = -1;
         else:
-            while time.time() < timeout:
-                if stop:
-                    break
-                Control.test(tm);
+            throttle = 1;
 
-    def rservo(sch, pos):
-        #TODO kör servo sch till deg
-        return None
+        kit.continuous_servo[sch].throttle = throttle;
 
-    def test(timeout):
-        p = GPIO.PWM(17, 100)
-        p.start(4)
-        p.ChangeDutyCycle(4)
-        time.sleep(timeout)
-        p.ChangeDutyCycle(1.5) # may need to be adjusted
-        GPIO.cleanup();
+        while time.time() < timeout:
+            if stop:
+                break
 
-    def testccw(timeout):
-        p = GPIO.PWM(17, 100)
-        p.start(4)
-        p.ChangeDutyCycle(20.5)
-        time.sleep(timeout)
-        p.ChangeDutyCycle(1.5) # may need to be adjusted
-        GPIO.cleanup();
+        kit.continuous_servo[sch].throttle = 0;
+
+    def rservo(servo, pos):
+        kit.servo[servo.channel].set_pulse_width_range(servo.pulse_min, servo.pulse_max)
+        kit.servo[servo.channel].angle = pos;
