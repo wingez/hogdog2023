@@ -8,7 +8,7 @@ class Servo:
         self.channel = channel;
 
     def goto(self, pos):
-        print(pos)
+        print(f"Åker till {pos[0]}")
         self.set(config.degStates[pos[0]])
 
     def goto_meat_mag(self):
@@ -27,29 +27,29 @@ class Servo:
     def up(self):
         self.run(False, 2)
 
-    def run(self, cw, timeout):
-        control.Control.cservo(self.channel, cw, timeout)
+    def run(self, cw, timeout, stop):
+        control.Control.cservo(self.channel, cw, timeout, stop)
 
     def set(self, pos):
         control.Control.rservo(self, pos)
 
 class SServo(Servo):
-  def __init__(self, deg, pulse_min, pulse_max, *args):
-      self.deg = deg;
-      self.pulse_min = pulse_min;
-      self.pulse_max = pulse_max;
-      super(SServo,self).__init__(*args)
+    def __init__(self, pulse_min, pulse_max, *args):
+        self.deg = 0;
+        self.pulse_min = pulse_min;
+        self.pulse_max = pulse_max;
+        super(SServo,self).__init__(*args)
 
 class CServo(Servo):
-  def __init__(self, *args):
-      super(CServo,self).__init__(*args)
+    def __init__(self, *args):
+        super(CServo,self).__init__(*args)
 
 servos = {}
 
-servos["d_arm"] = SServo(0, 430, 2290,"d_arm",  1)
+servos["d_arm"] = SServo(430, 2290,"d_arm",  1)
 servos["d_cyl"] = CServo("d_cyl", 0)
 
-servos["b_arm"] = SServo(0, 430, 2290, "b_arm", 2)
+servos["b_arm"] = SServo(650, 1870, "b_arm", 2)
 servos["b_mag"] = CServo("b_mag", 100)
 servos["dress_1"] = CServo("dress_1", 100)
 servos["dress_2"] = CServo("dress_2", 100)

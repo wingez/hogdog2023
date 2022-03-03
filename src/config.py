@@ -6,8 +6,8 @@ veg_curr = 0;
 degStates = {}
 
 degStates["heater"]     = 0
-degStates["d_final"]    = 160
-degStates["b_final"]    = 0
+degStates["d_final"]    = 90
+degStates["b_final"]    = 90
 degStates["d1"]         = 30
 degStates["d2"]         = 50
 

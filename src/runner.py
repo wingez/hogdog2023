@@ -58,7 +58,6 @@ class Runner:
         dog_thread.start()
 
 
-
 class Sequence:
 
     def __init__(self, name, ops):
@@ -68,7 +67,6 @@ class Sequence:
     def run(self):
         for op in self.ops:
             ops[op].run();
-
 
 
 class Operation:
@@ -89,12 +87,12 @@ class Operation:
 
 ops = {}
 
-ops["dog_to_meat"] = Operation(2, servo.servos["d_arm"].goto_meat_mag)
+ops["dog_to_meat"] = Operation(0.5, servo.servos["d_arm"].goto_meat_mag)
 
-ops["dog_to_veg"] = Operation(2, servo.servos["d_arm"].goto_veg_mag)
+ops["dog_to_veg"] = Operation(0.5, servo.servos["d_arm"].goto_veg_mag)
 
-ops["dog_to_heater"]    = Operation(1, servo.servos["d_arm"].goto, "heater")
-ops["dog_to_bread"]     = Operation(1, servo.servos["d_arm"].goto, "d_final")
+ops["dog_to_heater"]    = Operation(0.5, servo.servos["d_arm"].goto, "heater")
+ops["dog_to_bread"]     = Operation(0.5, servo.servos["d_arm"].goto, "d_final")
 ops["dog_down"]         = Operation(0.5, servo.servos["d_cyl"].down)
 ops["dog_up"]           = Operation(0.5, servo.servos["d_cyl"].up)
 
