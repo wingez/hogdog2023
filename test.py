@@ -3,6 +3,7 @@ from time import sleep
 from threading import Thread
 from easing_functions import *
 import math
+import RPi.GPIO as GPIO
 kit = ServoKit(channels=16)
 
 def run1(inn, out):
@@ -27,9 +28,16 @@ def run2():
     
 # bread_thread = Thread(target = run1).start()
 
-run1(0, 180);
-run1(180, 0);
-run1(0, 15);
-run1(15, 0);
-run1(0, 90);
-run1(90, 0);
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+
+def stop_all(e):
+    print("stop")
+
+GPIO.add_event_detect(16, GPIO.RISING, callback=stop_all, bouncetime=300)
+
+while 1:
+    sleep(0.5)
+    print("waiting")

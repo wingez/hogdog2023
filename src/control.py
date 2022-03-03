@@ -9,8 +9,9 @@ kit = ServoKit(channels=16)
 
 class Control:
 
-    def cservo(sch, cw, timeout, stop):
-        stop = False;
+    def cservo(servo, cw, timeout, gpio_ch):
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(gpio_ch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         tm = timeout;
 
         timeout = time.time() + timeout;
@@ -20,13 +21,15 @@ class Control:
         else:
             throttle = 1;
 
-        kit.continuous_servo[sch].throttle = throttle;
+        kit.continuous_servo[servo.channel].throttle = throttle;
 
-        while time.time() < timeout:
-            if stop:
-                break
+        try:
+            print("Waiting for trigger")
+            GPIO.wait_for_edge(gpio_ch, GPIO.FALLING)
+        except:
+            print("klar")
 
-        kit.continuous_servo[sch].throttle = 0;
+        kit.continuous_servo[servo.channel].throttle = 0;
 
     def rservo(servo, pos):
         kit.servo[servo.channel].set_pulse_width_range(servo.pulse_min, servo.pulse_max)
@@ -42,3 +45,6 @@ class Control:
             kit.servo[servo.channel].angle = ease.ease(i)
             i += 1;
             time.sleep(0.005)
+
+    def stop(channel):
+        kit.continuous_servo[channel].throttle = 0;

@@ -21,17 +21,22 @@ class Servo:
         pos = config.degStates[f"veg{config.veg_curr}"]
         self.set(pos)
 
-    def down(self):
-        self.run(True, 2)
-
-    def up(self):
-        self.run(False, 2)
-
-    def run(self, cw, timeout, stop):
-        control.Control.cservo(self.channel, cw, timeout, stop)
+    def run(self, cw, timeout, gpio):
+        control.Control.cservo(self, cw, timeout, gpio)
 
     def set(self, pos):
         control.Control.rservo(self, pos)
+
+    def down(self):
+        self.run(True, 2, 12)
+
+    def up(self):
+        self.run(False, 2, 12)
+
+    def stop():
+        for s in servos:
+            if not hasattr(servos[s], 'deg'):
+                control.Control.stop(servos[s].channel);
 
 class SServo(Servo):
     def __init__(self, pulse_min, pulse_max, *args):
@@ -39,6 +44,7 @@ class SServo(Servo):
         self.pulse_min = pulse_min;
         self.pulse_max = pulse_max;
         super(SServo,self).__init__(*args)
+        
 
 class CServo(Servo):
     def __init__(self, *args):
@@ -50,6 +56,6 @@ servos["d_arm"] = SServo(430, 2290,"d_arm",  1)
 servos["d_cyl"] = CServo("d_cyl", 0)
 
 servos["b_arm"] = SServo(650, 1870, "b_arm", 2)
-servos["b_mag"] = CServo("b_mag", 100)
-servos["dress_1"] = CServo("dress_1", 100)
-servos["dress_2"] = CServo("dress_2", 100)
+servos["b_mag"] = CServo("b_mag", 3)
+servos["dress_1"] = CServo("dress_1", 4)
+servos["dress_2"] = CServo("dress_2", 5)

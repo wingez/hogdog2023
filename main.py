@@ -1,23 +1,22 @@
-from src import runner, control, interface, config
+from src import runner, control, interface, servo
 import RPi.GPIO as GPIO
 import sys
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+def stop_all(e):
+    print("stop")
+    servo.Servo.stop();
+    sys.exit()
+GPIO.add_event_detect(16, GPIO.RISING, callback=stop_all, bouncetime=300)
 
 builder = runner.Builder();
 
 builder.set_d1()
 
 runner = builder.build()
-
-def my_callback(e):
-    sys.exit("STOPPED")
-    print("STOP")
-
-GPIO.add_event_detect(16, GPIO.RISING, callback=my_callback, bouncetime=300) 
 
 print("Waiting for button...")
 
