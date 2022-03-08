@@ -66,8 +66,10 @@ class Sequence:
 
     def run(self):
         for op in self.ops:
-            ops[op].run();
-
+            op_th = Thread(target = ops[op].run)
+            # ops[op].run();
+            op_th.start()
+            op.th.join()
 
 class Operation:
 
@@ -75,6 +77,7 @@ class Operation:
         self.fn = fn;
         self.args = args;
         self.wait = wait;
+        self.post = False;
 
     def run(self):
         print(f"Running {self.fn}")
@@ -84,6 +87,7 @@ class Operation:
             self.fn();
 
         time.sleep(self.wait)
+
 
 ops = {}
 
