@@ -1,34 +1,48 @@
 from src import runner, control, interface, servo
 import RPi.GPIO as GPIO
 import sys
+from threading import Thread
+import time
+
+builder = runner.Builder();
+builder.set_d1()
+builder.set_d2()
+
+print("Waiting for button...")
+
+
+def start(e):
+    GPIO.remove_event_detect(21)
+    runner1 = builder.build()
+    print("Button hit!")
+    print("Running sequence")
+    run_th = Thread(target = runner1.run)
+    run_th.start()
+    print("Thread started")
+    run_th.join()
+    print("Thread stopped")
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    try:
+        GPIO.add_event_detect(21, GPIO.RISING, callback=start, bouncetime=300)
+        while True:
+            time.sleep(0.1)
+            # INTERFACE THREAD
+    except KeyboardInterrupt:
+        print("Keyboard Interrupt")
+    finally:
+        GPIO.cleanup() 
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-def stop_all(e):
-    print("stop")
-    servo.Servo.stop();
-    sys.exit()
-GPIO.add_event_detect(16, GPIO.RISING, callback=stop_all, bouncetime=300)
-
-builder = runner.Builder();
-
-builder.set_d1()
-
-runner = builder.build()
-
-print("Waiting for button...")
-
 try:
-    GPIO.wait_for_edge(21, GPIO.FALLING)
-    print("Button hit!")
-    print("Running sequence")
-    runner.run();
+    GPIO.add_event_detect(21, GPIO.RISING, callback=start, bouncetime=300)
+    
+    while True:
+        time.sleep(0.1)
 except KeyboardInterrupt:
-    GPIO.cleanup()
-except SystemExit:
-    print("STOPPED")
-    GPIO.cleanup();
+    print("Keyboard Interrupt")
 finally:
-    GPIO.cleanup()
+    GPIO.cleanup() 

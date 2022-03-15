@@ -1,4 +1,5 @@
 from adafruit_servokit import ServoKit
+from src import runner, control, interface, servo
 from time import sleep
 from threading import Thread
 from easing_functions import *
@@ -28,16 +29,13 @@ def run2():
     
 # bread_thread = Thread(target = run1).start()
 
+def down():
+    s = servo.CServo("d_cyl", 0)
+    s.down()
+def up():
+    s = servo.CServo("d_cyl", 0)
+    s.up()
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-
-def stop_all(e):
-    print("stop")
-
-GPIO.add_event_detect(16, GPIO.RISING, callback=stop_all, bouncetime=300)
-
-while 1:
-    sleep(0.5)
-    print("waiting")
+def test2():
+    s = servo.CServo("d_cyl", 0)
+    servo.Servo.stop()

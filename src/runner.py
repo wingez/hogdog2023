@@ -24,25 +24,31 @@ class Builder:
         self.meat = False;
 
     def build(self):
-        dog = ["meat/veg", "dog_down", "dog_up", "dog_to_heater", "dog_down", "turn_on", "dog_up", "dog_to_bread", "dog_down"];
-        bread = ["bread_to_dog", "to_dressing", "bread_to_dog"]
+        dog = ["dog_to_mags", "meat/veg", "dog_down", "dog_up", "dog_to_heater", "dog_down", "turn_on", "dog_up", "dog_to_bread", "dog_down"];
+        bread = ["bread_to_dog", "dressing", "bread_to_dog"]
+
         if self.d1 and self.d2:
             bread[1] = "bread_to_d1"
-            bread.insert(2, "bread_to_d2")
+            bread.insert(2, "dress1")
+            bread.insert(3, "bread_to_d2")
+            bread.insert(4, "dress2")
         elif self.d1 and not self.d2:
             bread[1] = "bread_to_d1"
+            bread.insert(2, "dress1")
         elif self.d2 and not self.d1:
             bread[1] = "bread_to_d2"
+            bread.insert(2, "dress2")
         
         if self.meat:
-            dog[0] = "dog_to_meat"
+            dog[1] = "dog_to_meat"
         else:
-            dog[0] = "dog_to_veg"
+            dog[1] = "dog_to_veg"
 
         b_seq = Sequence("b_seq", bread)
         d_seq = Sequence("d_seq", dog)
+        fin_seq = Sequence("fin_seq", ["dog_final", "bread_final", "dog_up", "dog_to_mags"])
 
-        return Runner([b_seq, d_seq])
+        return Runner([b_seq, d_seq, fin_seq])
 
 
 class Runner:
@@ -53,9 +59,17 @@ class Runner:
     def run(self):
         bread_thread = Thread(target = self.seqs[0].run)
         dog_thread = Thread(target = self.seqs[1].run)
+        final_thread = Thread(target = self.seqs[2].run_sync)
 
         bread_thread.start()
         dog_thread.start()
+
+        bread_thread.join()
+        dog_thread.join()
+
+        final_thread.start()
+        final_thread.join()
+
 
 
 class Sequence:
@@ -67,9 +81,24 @@ class Sequence:
     def run(self):
         for op in self.ops:
             op_th = Thread(target = ops[op].run)
-            # ops[op].run();
             op_th.start()
-            op.th.join()
+            op_th.join()
+
+    def run_sync(self):
+        op1 = Thread(target = ops["dog_final"].run)
+        op2 = Thread(target = ops["bread_final"].run)
+        op3 = Thread(target = ops["dog_up"].run)
+        op4 = Thread(target = ops["dog_to_mags"].run)
+        op1.start()
+        op2.start()
+        op1.join()
+        op2.join()
+        op3.start()
+        op3.join()
+        op4.start()
+        op4.join()
+        print("FINISHED")
+
 
 class Operation:
 
@@ -80,35 +109,38 @@ class Operation:
         self.post = False;
 
     def run(self):
-        print(f"Running {self.fn}")
+        print(f"OPERATION STARTED: {self.fn} --- {self.args}\n")
         if self.args:
             self.fn(self.args)
         else:
             self.fn();
 
         time.sleep(self.wait)
+        print("OP FINISHED\n")
 
 
 ops = {}
 
-ops["dog_to_meat"] = Operation(0.5, servo.servos["d_arm"].goto_meat_mag)
+ops["dog_to_meat"] = Operation(0.1, servo.servos["d_arm"].goto_meat_mag)
 
-ops["dog_to_veg"] = Operation(0.5, servo.servos["d_arm"].goto_veg_mag)
+ops["dog_to_veg"] = Operation(0.1, servo.servos["d_arm"].goto_veg_mag)
 
-ops["dog_to_heater"]    = Operation(0.5, servo.servos["d_arm"].goto, "heater")
-ops["dog_to_bread"]     = Operation(0.5, servo.servos["d_arm"].goto, "d_final")
-ops["dog_down"]         = Operation(0.5, servo.servos["d_cyl"].down)
-ops["dog_up"]           = Operation(0.5, servo.servos["d_cyl"].up)
+ops["dog_to_mags"] = Operation(0.1, servo.servos["d_arm"].goto, "mags")
+
+ops["dog_to_heater"]    = Operation(0.1, servo.servos["d_arm"].goto, "heater")
+ops["dog_to_bread"]     = Operation(0.1, servo.servos["d_arm"].goto, "d_final")
+ops["dog_final"]        = Operation(0.1, servo.servos["d_arm"].goto, "d_takeoff")
+ops["dog_down"]         = Operation(0.1, servo.servos["d_cyl"].down)
+ops["dog_up"]           = Operation(0.1, servo.servos["d_cyl"].up)
 
 #TODO ops["cook_dog"]         = Operation(Heater on, None)
 
-ops["bread_to_mag"]     = Operation(2, servo.servos["b_arm"].goto, "b_mag")
-ops["bread_to_d1"]      = Operation(2, servo.servos["b_arm"].goto, "d1")
-ops["bread_to_d2"]      = Operation(2, servo.servos["b_arm"].goto, "d2") 
-ops["bread_to_dog"]     = Operation(2, servo.servos["b_arm"].goto, "b_final")
-ops["turn_on"]          = Operation(5, heater.Heater.turn_on)
+ops["bread_to_mag"]     = Operation(0.1, servo.servos["b_arm"].goto, "b_mag")
+ops["bread_to_d1"]      = Operation(0.1, servo.servos["b_arm"].goto, "d1")
+ops["bread_to_d2"]      = Operation(0.1, servo.servos["b_arm"].goto, "d2")
+ops["bread_to_dog"]     = Operation(0.1, servo.servos["b_arm"].goto, "b_final")
+ops["bread_final"]      = Operation(0.1, servo.servos["b_arm"].goto, "b_takeoff")
+ops["turn_on"]          = Operation(4, heater.Heater.turn_on)
 
-# ops["dress1_push"]      = Operation(100, servo.servos["dress_1"].push, None)
-# ops["dress1_release"]   = Operation(100, servo.servos["dress_1"].release, None)
-# ops["dress2_push"]      = Operation(100, servo.servos["dress_2"].push, None)
-# ops["dress2_release"]   = Operation(100, servo.servos["dress_2"].release, None)
+ops["dress1"]           = Operation(1, servo.servos["dress_1"].dress)
+ops["dress2"]           = Operation(1, servo.servos["dress_2"].dress)

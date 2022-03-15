@@ -9,25 +9,26 @@ kit = ServoKit(channels=16)
 
 class Control:
 
-    def cservo(servo, cw, timeout, gpio_ch):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(gpio_ch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        tm = timeout;
-
-        timeout = time.time() + timeout;
+    def cservo(servo, cw, timeout, gpio_ch, throttle):
 
         if cw:
-            throttle = -1;
+            throttle = -1 * throttle;
         else:
-            throttle = 1;
+            throttle = 1 * throttle;
 
         kit.continuous_servo[servo.channel].throttle = throttle;
-
-        try:
-            print("Waiting for trigger")
-            GPIO.wait_for_edge(gpio_ch, GPIO.FALLING)
-        except:
-            print("klar")
+        if gpio_ch != 0:
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(gpio_ch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            try:
+                print("Waiting for trigger")
+                GPIO.wait_for_edge(gpio_ch, GPIO.FALLING)
+            except:
+                print("klar")
+            finally:
+                GPIO.cleanup()
+        else:
+            time.sleep(timeout)
 
         kit.continuous_servo[servo.channel].throttle = 0;
 
@@ -38,13 +39,13 @@ class Control:
 
     def rtransition(servo, out_deg):
         dur = abs(out_deg - servo.deg)
-        dur = dur*(5*math.exp(1-dur/12) + 1)
+        dur = dur*(5*math.exp(1-dur/12) + 1.3)
         ease = QuadEaseInOut(servo.deg, out_deg, dur)
         i = 0;
         while i < dur:
             kit.servo[servo.channel].angle = ease.ease(i)
             i += 1;
-            time.sleep(0.005)
+            time.sleep(0.008)
 
     def stop(channel):
         kit.continuous_servo[channel].throttle = 0;

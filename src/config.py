@@ -5,14 +5,17 @@ veg_curr = 0;
 
 degStates = {}
 
-degStates["heater"]     = 0
-degStates["d_final"]    = 90
-degStates["b_final"]    = 90
-degStates["d1"]         = 30
-degStates["d2"]         = 50
+degStates["heater"]     = 170
+degStates["d_final"]    = 0
+degStates["d_takeoff"]  = 10
+degStates["b_final"]    = 155
+degStates["b_takeoff"]  = 165
+degStates["d1"]         = 120
+degStates["d2"]         = 90
 
-meat_degs = [35,40,45,50,55,60,65,70,75,80];
-veg_degs = [85,90,95,100,105];
+meat_degs = [120,115,110,105,100,95,90,85,85,80];
+veg_degs = [75,70,65,60,55];
+degStates["mags"] = 75
 
 for i, deg in enumerate(meat_degs):
     degStates[f"meat{i}"] = deg;
