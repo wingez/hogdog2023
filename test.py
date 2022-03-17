@@ -1,5 +1,5 @@
 from adafruit_servokit import ServoKit
-from src import runner, control, interface, servo
+from src import runner, control, interface, servo, max31855
 from time import sleep
 from threading import Thread
 from easing_functions import *
@@ -37,5 +37,33 @@ def up():
     s.up()
 
 def test2():
-    s = servo.CServo("d_cyl", 0)
-    servo.Servo.stop()
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    try:
+        print("Waiting for trigger")
+        while True:
+            GPIO.wait_for_edge(26, GPIO.FALLING)
+            print("TRIGGAD")
+            sleep(0.2)
+            if not GPIO.input(26):
+                break
+    except KeyboardInterrupt:
+        print("Keyboard Interrupt")
+        GPIO.cleanup()
+    finally:
+        print("klar")
+        GPIO.cleanup()
+
+# thermocouple = max31855.max31855.MAX31855(8, 11, 9, "c")
+# try:
+#     while True:
+#         sleep(1)
+#         print(thermocouple.get())
+# except KeyboardInterrupt:
+#     print("Keyboard Interrupt")
+#     thermocouple.cleanup() 
+# finally:
+#     thermocouple.cleanup() 
+
+
+test2()

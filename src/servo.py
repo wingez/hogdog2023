@@ -1,5 +1,4 @@
-from src import control
-from src import config
+from src import control, config
 
 class Servo:
     
@@ -8,12 +7,12 @@ class Servo:
         self.channel = channel;
 
     def goto(self, pos):
-        print(f"Åker till {pos[0]}")
         self.set(config.degStates[pos[0]])
 
     def goto_meat_mag(self):
         config.meat_curr = (config.meat_curr + 1) % len(config.meat_degs)
         pos = config.degStates[f"meat{config.meat_curr}"]
+        print(pos)
         self.set(pos)
 
     def goto_veg_mag(self):
@@ -28,10 +27,10 @@ class Servo:
         control.Control.rservo(self, pos)
 
     def down(self):
-        self.run(True, 0, 12, 1)
+        self.run(True, 0, 20, 1)
 
     def up(self):
-        self.run(False, 0, 6, 1)
+        self.run(False, 0, 26, 1)
 
     def dress(self):
         self.run(True, 0.5, 0, 1)

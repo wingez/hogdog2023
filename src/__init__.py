@@ -7,3 +7,5 @@ from .runner import Runner, Operation, Sequence
 from .interface import Interface
 
 from .heater import Heater
+
+from .max31855.max31855 import MAX31855

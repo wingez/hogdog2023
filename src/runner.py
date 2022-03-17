@@ -116,7 +116,6 @@ class Operation:
             self.fn();
 
         time.sleep(self.wait)
-        print("OP FINISHED\n")
 
 
 ops = {}
@@ -140,7 +139,7 @@ ops["bread_to_d1"]      = Operation(0.1, servo.servos["b_arm"].goto, "d1")
 ops["bread_to_d2"]      = Operation(0.1, servo.servos["b_arm"].goto, "d2")
 ops["bread_to_dog"]     = Operation(0.1, servo.servos["b_arm"].goto, "b_final")
 ops["bread_final"]      = Operation(0.1, servo.servos["b_arm"].goto, "b_takeoff")
-ops["turn_on"]          = Operation(4, heater.Heater.turn_on)
+ops["turn_on"]          = Operation(1, heater.Heater.turn_on)
 
 ops["dress1"]           = Operation(1, servo.servos["dress_1"].dress)
 ops["dress2"]           = Operation(1, servo.servos["dress_2"].dress)

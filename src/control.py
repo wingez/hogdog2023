@@ -22,10 +22,13 @@ class Control:
             GPIO.setup(gpio_ch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
             try:
                 print("Waiting for trigger")
-                GPIO.wait_for_edge(gpio_ch, GPIO.FALLING)
-            except:
-                print("klar")
+                while True:
+                    GPIO.wait_for_edge(gpio_ch, GPIO.FALLING)
+                    time.sleep(0.1)
+                    if not GPIO.input(gpio_ch):
+                        break
             finally:
+                print("klar")
                 GPIO.cleanup()
         else:
             time.sleep(timeout)
