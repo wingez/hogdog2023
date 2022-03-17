@@ -97,7 +97,7 @@ class Sequence:
         op3.join()
         op4.start()
         op4.join()
-        print("FINISHED")
+        print(f"FINISHED")
 
 
 class Operation:
@@ -109,7 +109,7 @@ class Operation:
         self.post = False;
 
     def run(self):
-        print(f"OPERATION STARTED: {self.fn} --- {self.args}\n")
+        print(f"OPERATION STARTED: {self.fn} --- {self.args}")
         if self.args:
             self.fn(self.args)
         else:

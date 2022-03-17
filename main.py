@@ -39,7 +39,6 @@ GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 try:
     GPIO.add_event_detect(21, GPIO.RISING, callback=start, bouncetime=300)
-    
     while True:
         time.sleep(0.1)
 except KeyboardInterrupt:
