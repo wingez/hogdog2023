@@ -1,19 +1,21 @@
-from src import runner, control, interface, servo
+from asyncio.windows_events import NULL
+from hogdog.src import interface
+from src import runner, control, servo
 import RPi.GPIO as GPIO
 import sys
 from threading import Thread
 import time
 
-builder = runner.Builder();
-builder.set_d1()
-builder.set_d2()
-
+builder1 = runner.Builder();
+builder1.set_d1()
+builder1.set_d2()
+interface1 = interface()
+runner1 = NULL
 print("Waiting for button...")
-
 
 def start(e):
     GPIO.remove_event_detect(21)
-    runner1 = builder.build()
+    runner1 = builder1.build()   
     print("Button hit!")
     print("Running sequence")
     run_th = Thread(target = runner1.run)
@@ -29,6 +31,9 @@ def start(e):
         while True:
             time.sleep(0.1)
             # INTERFACE THREAD
+            check_th = Thread(target = interface1.check)
+            check_th.start()
+            interface1.check()
     except KeyboardInterrupt:
         print("Keyboard Interrupt")
     finally:

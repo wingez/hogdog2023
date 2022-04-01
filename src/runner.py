@@ -1,6 +1,8 @@
-import time 
+import time
+#from hogdog.src import interface 
 from src import servo, config, heater
 from threading import Thread
+from main import interface1
 
 class Builder:
 
@@ -41,8 +43,11 @@ class Builder:
         
         if self.meat:
             dog[1] = "dog_to_meat"
+            interface1.mag1_decrease()
+    
         else:
             dog[1] = "dog_to_veg"
+            interface1.mag2_decrease()
 
         b_seq = Sequence("b_seq", bread)
         d_seq = Sequence("d_seq", dog)
