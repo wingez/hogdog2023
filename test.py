@@ -65,5 +65,4 @@ def test2():
 # finally:
 #     thermocouple.cleanup() 
 
-
-test2()
+s = servo.CServo("dress_1", 4)
