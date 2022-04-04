@@ -9,11 +9,10 @@ class Builder:
         self.d1 = False;
         self.d2 = False;
 
-    def toggle_d1(self, status):
-        temp = status
-        time.sleep(0.2)
-        if temp == status:
-            self.d1 = status;
+    def set_d1(self):
+        self.d1 = True;
+    def reset_d1(self):
+        self.d1 = False;
     def set_d2(self):
         self.d2 = True;
     def reset_d2(self):
@@ -27,7 +26,8 @@ class Builder:
     def build(self):
         dog = ["dog_to_mags", "meat/veg", "dog_down", "dog_up", "dog_to_heater", "dog_down", "turn_on", "dog_up", "dog_to_bread", "dog_down"];
         bread = ["bread_to_dog", "dressing", "bread_to_dog"]
-
+        print(self.d1)
+        print(self.d2)
         if self.d1 and self.d2:
             bread[1] = "bread_to_d1"
             bread.insert(2, "dress1")
@@ -39,6 +39,9 @@ class Builder:
         elif self.d2 and not self.d1:
             bread[1] = "bread_to_d2"
             bread.insert(2, "dress2")
+        else:
+            del bread[1]
+
         
         if self.meat:
             dog[1] = "dog_to_meat"

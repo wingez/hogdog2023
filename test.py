@@ -1,5 +1,5 @@
 from adafruit_servokit import ServoKit
-from src import runner, control, interface, servo, max31855
+from src import runner, control, interface, servo, max31855, ser_handler
 from time import sleep
 from threading import Thread
 from easing_functions import *
@@ -54,6 +54,7 @@ def test2():
         print("klar")
         GPIO.cleanup()
 
+
 # thermocouple = max31855.max31855.MAX31855(8, 11, 9, "c")
 # try:
 #     while True:
@@ -65,4 +66,8 @@ def test2():
 # finally:
 #     thermocouple.cleanup() 
 
-s = servo.CServo("dress_1", 4)
+s = ser_handler.SerialHandler()
+
+sleep(4)
+
+s.write(785)
