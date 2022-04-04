@@ -1,8 +1,6 @@
 import time
-#from hogdog.src import interface 
 from src import servo, config, heater
 from threading import Thread
-from main import interface1
 
 class Builder:
 
@@ -11,10 +9,11 @@ class Builder:
         self.d1 = False;
         self.d2 = False;
 
-    def set_d1(self):
-        self.d1 = True;
-    def reset_d1(self):
-        self.d1 = False;
+    def toggle_d1(self, status):
+        temp = status
+        time.sleep(0.2)
+        if temp == status:
+            self.d1 = status;
     def set_d2(self):
         self.d2 = True;
     def reset_d2(self):
@@ -43,11 +42,11 @@ class Builder:
         
         if self.meat:
             dog[1] = "dog_to_meat"
-            interface1.mag1_decrease()
+            config.meat_curr -= 1
     
         else:
             dog[1] = "dog_to_veg"
-            interface1.mag2_decrease()
+            config.veg_curr -= 1
 
         b_seq = Sequence("b_seq", bread)
         d_seq = Sequence("d_seq", dog)
@@ -60,12 +59,14 @@ class Runner:
     
     def __init__(self, seqs):
         self.seqs = seqs;
+        self.running = False;
 
     def run(self):
         bread_thread = Thread(target = self.seqs[0].run)
         dog_thread = Thread(target = self.seqs[1].run)
         final_thread = Thread(target = self.seqs[2].run_sync)
 
+        self.running = True
         bread_thread.start()
         dog_thread.start()
 
@@ -74,6 +75,8 @@ class Runner:
 
         final_thread.start()
         final_thread.join()
+
+        self.running = False
 
 
 
