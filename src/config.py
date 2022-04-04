@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 
-meat_curr = 0;
-veg_curr = 0;
+meat_curr = 10;
+veg_curr = 5;
 
 degStates = {}
 
