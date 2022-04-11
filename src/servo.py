@@ -10,13 +10,14 @@ class Servo:
         self.set(config.degStates[pos[0]])
 
     def goto_meat_mag(self):
-        config.meat_curr = (config.meat_curr + 1) % len(config.meat_degs)
+        print(config.meat_curr)
         pos = config.degStates[f"meat{config.meat_curr}"]
-        print(pos)
+        config.meat_curr = (config.meat_curr - 1)
+        print(config.meat_curr)
         self.set(pos)
 
     def goto_veg_mag(self):
-        config.veg_curr = (config.veg_curr + 1) % len(config.veg_degs)
+        config.veg_curr = (config.veg_curr - 1)
         pos = config.degStates[f"veg{config.veg_curr}"]
         self.set(pos)
 
@@ -27,10 +28,10 @@ class Servo:
         control.Control.rservo(self, pos)
 
     def down(self):
-        self.run(True, 0, 20, 1)
+        self.run(True, 0, config.pins['arm']['down'], 1)
 
     def up(self):
-        self.run(False, 0, 26, 1)
+        self.run(False, 0, config.pins['arm']['up'], 1)
 
     def dress(self):
         self.run(True, 0.5, 0, 1)

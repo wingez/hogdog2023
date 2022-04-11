@@ -26,8 +26,6 @@ class Builder:
     def build(self):
         dog = ["dog_to_mags", "meat/veg", "dog_down", "dog_up", "dog_to_heater", "dog_down", "turn_on", "dog_up", "dog_to_bread", "dog_down"];
         bread = ["bread_to_dog", "dressing", "bread_to_dog"]
-        print(self.d1)
-        print(self.d2)
         if self.d1 and self.d2:
             bread[1] = "bread_to_d1"
             bread.insert(2, "dress1")
@@ -45,15 +43,19 @@ class Builder:
         
         if self.meat:
             dog[1] = "dog_to_meat"
-            config.meat_curr -= 1
+            # config.meat_curr -= 1
     
         else:
             dog[1] = "dog_to_veg"
-            config.veg_curr -= 1
+            # config.veg_curr -= 1
 
         b_seq = Sequence("b_seq", bread)
         d_seq = Sequence("d_seq", dog)
         fin_seq = Sequence("fin_seq", ["dog_final", "bread_final", "dog_up", "dog_to_mags"])
+
+        print(f"MEAT: {self.meat}")
+        print(f"d1: {self.d1}")
+        print(f"d2: {self.d2}")
 
         return Runner([b_seq, d_seq, fin_seq])
 
@@ -131,15 +133,15 @@ class Operation:
 
 ops = {}
 
-ops["dog_to_meat"] = Operation(0.1, servo.servos["d_arm"].goto_meat_mag)
+ops["dog_to_meat"] = Operation(0.3, servo.servos["d_arm"].goto_meat_mag)
 
-ops["dog_to_veg"] = Operation(0.1, servo.servos["d_arm"].goto_veg_mag)
+ops["dog_to_veg"] = Operation(0.3, servo.servos["d_arm"].goto_veg_mag)
 
-ops["dog_to_mags"] = Operation(0.1, servo.servos["d_arm"].goto, "mags")
+ops["dog_to_mags"] = Operation(0.3, servo.servos["d_arm"].goto, "mags")
 
-ops["dog_to_heater"]    = Operation(0.1, servo.servos["d_arm"].goto, "heater")
-ops["dog_to_bread"]     = Operation(0.1, servo.servos["d_arm"].goto, "d_final")
-ops["dog_final"]        = Operation(0.1, servo.servos["d_arm"].goto, "d_takeoff")
+ops["dog_to_heater"]    = Operation(0.3, servo.servos["d_arm"].goto, "heater")
+ops["dog_to_bread"]     = Operation(0.3, servo.servos["d_arm"].goto, "d_final")
+ops["dog_final"]        = Operation(0.3, servo.servos["d_arm"].goto, "d_takeoff")
 ops["dog_down"]         = Operation(0.1, servo.servos["d_cyl"].down)
 ops["dog_up"]           = Operation(0.1, servo.servos["d_cyl"].up)
 

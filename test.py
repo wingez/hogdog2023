@@ -1,31 +1,76 @@
 from adafruit_servokit import ServoKit
-from src import runner, control, interface, servo, max31855, ser_handler
+from src import runner, control, interface, servo, max31855, ser_handler, config
 from time import sleep
 from threading import Thread
 from easing_functions import *
 import math
+import numpy as np
 import RPi.GPIO as GPIO
+import matplotlib.pyplot as plt
 kit = ServoKit(channels=16)
 
 def run1(inn, out):
-    dur = abs(out - inn)
-    print(dur)
-    dur = dur*(5*math.exp(1-dur/10) + 1)
-    print(dur)
-    ease = QuadEaseInOut(inn, out, dur)
+    t = abs(out - inn)
+    # dur = t*(5*math.exp(1-t/12) + 1.5)
+    ease = QuadEaseInOut(inn, out, t)
     i = 0;
-    while i < dur:
-        kit.servo[1].angle = ease.ease(i)
+    y = []
+    while i < round(t):
+        y.append(ease.ease(i))
         i += 1;
-        sleep(0.005)
+    x = list(range(0, round(t)))
+    y2 = list(range(inn, out))
+    x2 = list(range(0, len(y2)))
+    fig, ax = plt.subplots()
+    ax.scatter(x, y, 2**2, label="Mjukgjord lista")
+    ax.scatter(x2, y2, 2**2, label="Originallista")
+    ax.legend()
+    plt.xlabel('Index')
+    plt.ylabel('Vinkel')
+    plt.savefig("dummy_name2.png")
+
+def plot():
+    x = np.linspace(0,90,1000)
+
+    # the function, which is y = x^2 here
+    y = x*(5*np.exp(1-x/12) + 1.5)
+
+    # setting the axes at the centre
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    # plot the function
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.plot(x,y, 'r')
+    plt.savefig("test2.png")
 
 def run2():
-    kit.continuous_servo[0].throttle = 1;
+    kit.servo[1].angle = 0;
     sleep(3)
-    kit.continuous_servo[0].throttle = -1;
+    kit.servo[1].angle = 90;
     sleep(2)
-    kit.continuous_servo[0].throttle = 0;
+    kit.servo[1].angle = 0;
 
+def run3(inn, out):
+    t = abs(out - inn)
+    dur = t*(5*math.exp(1-t/12) + 1.5)
+    ease = QuadEaseInOut(inn, out, dur)
+    i = 0;
+    while i < round(dur):
+        kit.servo[1].angle = ease.ease(i)
+        i += 1;
+        sleep(0.006)
+    
+    sleep(2)
+    t = abs(inn - out)
+    dur = t*(5*math.exp(1-t/12) + 1.5)
+    ease = QuadEaseInOut(out, inn, dur)
+    i = 0;
+    while i < round(dur):
+        kit.servo[1].angle = ease.ease(i)
+        i += 1;
+        sleep(0.006)
     
 # bread_thread = Thread(target = run1).start()
 
@@ -38,21 +83,20 @@ def up():
 
 def test2():
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    try:
-        print("Waiting for trigger")
-        while True:
-            GPIO.wait_for_edge(26, GPIO.FALLING)
-            print("TRIGGAD")
-            sleep(0.2)
-            if not GPIO.input(26):
-                break
-    except KeyboardInterrupt:
-        print("Keyboard Interrupt")
-        GPIO.cleanup()
-    finally:
-        print("klar")
-        GPIO.cleanup()
+
+    GPIO.setup(26, GPIO.OUT)
+    GPIO.output(26, GPIO.LOW)
+    sleep(0.5)
+
+    GPIO.output(26, GPIO.HIGH)
+    sleep(0.5)
+    GPIO.output(26, GPIO.LOW)
+    sleep(0.5)
+
+    # while True:
+    #     if GPIO.input(config.pins['interface']['mag1_btn']):
+    #     sleep(0.1)
+    
 
 
 # thermocouple = max31855.max31855.MAX31855(8, 11, 9, "c")
@@ -66,8 +110,22 @@ def test2():
 # finally:
 #     thermocouple.cleanup() 
 
-s = ser_handler.SerialHandler()
+# s = ser_handler.SerialHandler()
 
-sleep(4)
+# sleep(4)
 
-s.write(785)
+# s.write(785)
+
+# s = servo.servos["d_arm"]
+# s.goto(("mags",))
+
+# sleep(2)
+
+# s.goto(("heater",))
+# sleep(2)
+# s.goto(("mags",))
+
+
+# plot()
+
+test2()

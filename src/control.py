@@ -23,7 +23,7 @@ class Control:
             try:
                 while True:
                     GPIO.wait_for_edge(gpio_ch, GPIO.FALLING)
-                    time.sleep(0.05)
+                    time.sleep(0.02)
                     if not GPIO.input(gpio_ch):
                         break
             finally:
@@ -40,7 +40,7 @@ class Control:
 
     def rtransition(servo, out_deg):
         dur = abs(out_deg - servo.deg)
-        dur = dur*(5*math.exp(1-dur/12) + 1.3)
+        dur = dur*(5*math.exp(1-dur/12) + 1.5)
         ease = QuadEaseInOut(servo.deg, out_deg, dur)
         i = 0;
         while i < dur:
