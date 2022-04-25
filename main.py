@@ -7,7 +7,8 @@ import time
 builder1 = runner.Builder();
 interface1 = interface.Interface(builder1)
 runner1 = None
-
+servo.Servo.stop()
+builder1.init()
 while True:
     check = Thread(target = interface1.check)
     check.start()
@@ -16,6 +17,7 @@ while True:
     runner1 = builder1.build()
     print("Running!")
     run_th = Thread(target = runner1.run)
+    # run_th = Thread(target = runner1.test)
     run_th.start()
     print("Thread started!")
     run_th.join()

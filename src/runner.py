@@ -23,9 +23,15 @@ class Builder:
     def reset_meat(self):
         self.meat = False;
 
+    def init(self):
+        init = ["dog_to_mags", "bread_to_dog"]
+        init_seq = Sequence("init", init)
+        Runner.init(init_seq)
+
     def build(self):
         dog = ["dog_to_mags", "meat/veg", "dog_down", "dog_up", "dog_to_heater", "dog_down", "turn_on", "dog_up", "dog_to_bread", "dog_down"];
         bread = ["bread_to_dog", "dressing", "bread_to_dog"]
+        test = ["dog_to_mags", "dog_to_meat", "dog_down", "dog_up", "dog_to_mags"]
         if self.d1 and self.d2:
             bread[1] = "bread_to_d1"
             bread.insert(2, "dress1")
@@ -40,24 +46,23 @@ class Builder:
         else:
             del bread[1]
 
-        
         if self.meat:
             dog[1] = "dog_to_meat"
-            # config.meat_curr -= 1
-    
+            test[1] = "dog_to_meat"
         else:
             dog[1] = "dog_to_veg"
-            # config.veg_curr -= 1
+            test[1] = "dog_to_veg"
 
-        b_seq = Sequence("b_seq", bread)
-        d_seq = Sequence("d_seq", dog)
-        fin_seq = Sequence("fin_seq", ["dog_final", "bread_final", "dog_up", "dog_to_mags"])
+        b_seq = Sequence("b", bread)
+        d_seq = Sequence("d", dog)
+        fin_seq = Sequence("fin", ["dog_final", "bread_final", "dog_up", "dog_to_mags"])
+        test_seq = Sequence("test_seq", test)
 
         print(f"MEAT: {self.meat}")
         print(f"d1: {self.d1}")
         print(f"d2: {self.d2}")
 
-        return Runner([b_seq, d_seq, fin_seq])
+        return Runner([b_seq, d_seq, fin_seq, test_seq])
 
 
 class Runner:
@@ -69,7 +74,7 @@ class Runner:
     def run(self):
         bread_thread = Thread(target = self.seqs[0].run)
         dog_thread = Thread(target = self.seqs[1].run)
-        final_thread = Thread(target = self.seqs[2].run_sync)
+        final_thread = Thread(target = self.seqs[2].run_fin)
 
         self.running = True
         bread_thread.start()
@@ -82,6 +87,22 @@ class Runner:
         final_thread.join()
 
         self.running = False
+
+    def test(self):
+        test_thread = Thread(target = self.seqs[3].run)
+
+        self.running = True
+
+        test_thread.start()
+        test_thread.join()
+
+        self.running = False
+
+    def init(seq):
+        init_thread = Thread(target = seq.run_sync)
+
+        init_thread.start()
+        init_thread.join()
 
 
 
@@ -98,6 +119,12 @@ class Sequence:
             op_th.join()
 
     def run_sync(self):
+        for op in self.ops:
+            op_th = Thread(target = ops[op].run)
+            op_th.start()
+
+
+    def run_fin(self):
         op1 = Thread(target = ops["dog_final"].run)
         op2 = Thread(target = ops["bread_final"].run)
         op3 = Thread(target = ops["dog_up"].run)
@@ -133,11 +160,11 @@ class Operation:
 
 ops = {}
 
-ops["dog_to_meat"] = Operation(0.3, servo.servos["d_arm"].goto_meat_mag)
+ops["dog_to_meat"] = Operation(1.3, servo.servos["d_arm"].goto_meat_mag)
 
-ops["dog_to_veg"] = Operation(0.3, servo.servos["d_arm"].goto_veg_mag)
+ops["dog_to_veg"] = Operation(1.3, servo.servos["d_arm"].goto_veg_mag)
 
-ops["dog_to_mags"] = Operation(0.3, servo.servos["d_arm"].goto, "mags")
+ops["dog_to_mags"] = Operation(1.3, servo.servos["d_arm"].goto, "mags")
 
 ops["dog_to_heater"]    = Operation(0.3, servo.servos["d_arm"].goto, "heater")
 ops["dog_to_bread"]     = Operation(0.3, servo.servos["d_arm"].goto, "d_final")

@@ -25,14 +25,14 @@ class Interface:
         self.veg_refill = False
         
     def fyllt1(self, e):
-        GPIO.output(MAG_1_FILL_LED_PIN , 0)
+        GPIO.output(MAG_1_FILL_LED_PIN , GPIO.LOW)
         config.meat_curr = 9
         self.meat_refill = False
         print("mag 1 full")
         print("mag 1 (LED_OFF)")
 
     def fyllt2(self, e):
-        GPIO.output(MAG_2_FILL_LED_PIN , 0)
+        GPIO.output(MAG_2_FILL_LED_PIN , GPIO.LOW)
         config.veg_curr = 4
         self.veg_refill = False
         print("mag 2 full")
@@ -51,22 +51,26 @@ class Interface:
         GPIO.setup(MAG_2_FILL_LED_PIN, GPIO.OUT)
         GPIO.setup(HEATER_LED_PIN, GPIO.OUT)
         
+        GPIO.output(MAG_1_FILL_LED_PIN , GPIO.LOW)
+        GPIO.output(MAG_2_FILL_LED_PIN , GPIO.LOW)
         GPIO.add_event_detect(START_PIN, GPIO.RISING, callback=self.go, bouncetime=300)
 
         self.run = False
         self.ready_togo = False
+        
+        self.start_led_off()
 
         while not self.run:
 
-            if config.meat_curr <= 0 and not self.meat_refill:
-                GPIO.output(MAG_1_FILL_LED_PIN, 1)
+            if config.meat_curr < 0 and not self.meat_refill:
+                GPIO.output(MAG_1_FILL_LED_PIN, GPIO.HIGH)
                 GPIO.add_event_detect(MAG_1_FILL_PIN, GPIO.RISING, callback=self.fyllt1, bouncetime=300)
                 print("mag 1 needs refill")
                 print("mag 1 low (LED_ON)")
                 self.meat_refill = True
 
-            if config.veg_curr <= 0 and not self.veg_refill:
-                GPIO.output(MAG_2_FILL_LED_PIN, 1)
+            if config.veg_curr < 0 and not self.veg_refill:
+                GPIO.output(MAG_2_FILL_LED_PIN, GPIO.HIGH)
                 GPIO.add_event_detect(MAG_2_FILL_PIN, GPIO.RISING, callback=self.fyllt2, bouncetime=300)
                 print("mag 2 needs refill")
                 print("mag 2 low (LED_ON)")
@@ -77,10 +81,13 @@ class Interface:
             else:
                 self.builder.reset_meat()
 
-            if ((config.meat_curr > 0 and self.builder.meat) or (config.veg_curr > 0 and not self.builder.meat)):# and not running :
+            if ((config.meat_curr >= 0 and self.builder.meat) or (config.veg_curr >= 0 and not self.builder.meat)):# and not running :
                 self.ready_togo = True
                 print("READY")
                 self.start_led_on()
+            else:
+                self.start_led_off()
+                self.ready_togo = False
 
             time.sleep(0.2)
 
@@ -94,6 +101,11 @@ class Interface:
         else:
             self.builder.reset_d2()
 
+        GPIO.remove_event_detect(START_PIN)
+            
+        self.veg_refill = False
+        self.meat_refill = False
+
         return True
 
     def start_led_on(self):
@@ -103,11 +115,8 @@ class Interface:
         GPIO.output(START_LED_PIN , GPIO.LOW)
 
     def go(self, e):
-        if self.ready_togo:
-            self.run = True
-            self.start_led_off()
-
-        
-
-
-
+        time.sleep(0.1)
+        if GPIO.input(START_PIN):
+            if self.ready_togo and not self.run:
+                self.run = True
+                self.start_led_off()

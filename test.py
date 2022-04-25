@@ -11,19 +11,20 @@ kit = ServoKit(channels=16)
 
 def run1(inn, out):
     t = abs(out - inn)
-    # dur = t*(5*math.exp(1-t/12) + 1.5)
-    ease = QuadEaseInOut(inn, out, t)
+    dur = t*(5*math.exp(1-t/12) + 1.5)
+    ease = QuadEaseInOut(inn, out, dur)
     i = 0;
     y = []
-    while i < round(t):
+    while i < round(dur):
         y.append(ease.ease(i))
         i += 1;
-    x = list(range(0, round(t)))
+    x = list(range(0, round(dur)))
     y2 = list(range(inn, out))
     x2 = list(range(0, len(y2)))
     fig, ax = plt.subplots()
     ax.scatter(x, y, 2**2, label="Mjukgjord lista")
-    ax.scatter(x2, y2, 2**2, label="Originallista")
+    ax.set(xlim=(0, round(dur)), ylim=(inn, out))
+    # ax.scatter(x2, y2, 2**2, label="Originallista")
     ax.legend()
     plt.xlabel('Index')
     plt.ylabel('Vinkel')
@@ -84,13 +85,13 @@ def up():
 def test2():
     GPIO.setmode(GPIO.BCM)
 
-    GPIO.setup(26, GPIO.OUT)
-    GPIO.output(26, GPIO.LOW)
+    GPIO.setup(20, GPIO.OUT)
+    GPIO.output(20, GPIO.LOW)
     sleep(0.5)
 
-    GPIO.output(26, GPIO.HIGH)
+    GPIO.output(20, GPIO.HIGH)
     sleep(0.5)
-    GPIO.output(26, GPIO.LOW)
+    GPIO.output(20, GPIO.LOW)
     sleep(0.5)
 
     # while True:
@@ -128,4 +129,4 @@ def test2():
 
 # plot()
 
-test2()
+run1(75, 100)

@@ -16,7 +16,7 @@ class Heater:
         while True:
             temp = thermocouple.get()
             print(temp)
-            if temp >= 22:
+            if temp >= 23:
                 print("heating done")
                 break;
             sleep(0.5)

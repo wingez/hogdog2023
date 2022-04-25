@@ -46,7 +46,7 @@ class Control:
         while i < dur:
             kit.servo[servo.channel].angle = ease.ease(i)
             i += 1;
-            time.sleep(0.008)
+            time.sleep(0.007)
 
     def stop(channel):
         kit.continuous_servo[channel].throttle = 0;
