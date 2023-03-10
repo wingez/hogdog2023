@@ -74,7 +74,7 @@ app.layout = html.Div([
     ),
     daq.Indicator(
         id='my-indicator-kveg',
-        label="kveg",
+        label="Kött/Veg",
         size="40", labelPosition="bottom",
 
     ),
