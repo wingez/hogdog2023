@@ -1,8 +1,7 @@
 from dash import Dash, dcc, html, Input, Output
 import dash_daq as daq
-
 from adafruit_servokit import ServoKit
-import time
+
 import RPi.GPIO as g
 
 from thermocoupler import MAX31855
@@ -37,6 +36,8 @@ g.setup(Inputs.ketchup, g.IN, pull_up_down=g.PUD_UP)
 g.setup(Inputs.mayo, g.IN, pull_up_down=g.PUD_UP)
 g.setup(Inputs.load1, g.IN, pull_up_down=g.PUD_UP)
 g.setup(Inputs.load2, g.IN, pull_up_down=g.PUD_UP)
+
+kit = ServoKit(channels=16)
 
 app = Dash(__name__)
 
@@ -116,15 +117,15 @@ app.layout = html.Div([
     ),
 
 html.Div([
-        html.Label('Slider'),
+        html.Label('Servo angular'),
         dcc.Slider(
             id='my-slider',
             value=0,
-            min=-180,
+            min=0,
             max=180,
             step=1,
-            marks={i: '{}'.format(i) for i in range(-180,181,10)},
-        ),
+            marks={i: '{}'.format(i) for i in range(0,181,10)},
+        ), html.Div(id='servo-slider'),
     ], style={'width': '1500px', 'margin': '20px auto'}),
 
     dcc.Interval(interval=1000, id="thermometer_interval"),
@@ -186,10 +187,12 @@ def thermo_callback(n_intervals):
     return float(thermometer.get())
 
 @app.callback(
-    Output('slider-output-container', 'children'),
-    Input('servo-slider', 'value')
+    Output('servo-slider', 'children'),
+    Input('my-slider', 'value')
 )
 def update_output(value):
+    print(f"Callback servo, value: {value} degrees")
+    kit.servo[0].angle = value
     return 'You have selected "{}"'.format(value)
 
 if __name__ == '__main__':
