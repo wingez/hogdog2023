@@ -1,6 +1,8 @@
 from dash import Dash, dcc, html, Input, Output
 import dash_daq as daq
 
+from adafruit_servokit import ServoKit
+import time
 import RPi.GPIO as g
 
 from thermocoupler import MAX31855
@@ -112,8 +114,20 @@ app.layout = html.Div([
         },
         showCurrentValue=True,
     ),
-    dcc.Interval(interval=1000, id="thermometer_interval")
 
+html.Div([
+        html.Label('Slider'),
+        dcc.Slider(
+            id='my-slider',
+            value=0,
+            min=-180,
+            max=180,
+            step=1,
+            marks={i: '{}'.format(i) for i in range(-180,181,10)},
+        ),
+    ], style={'width': '1500px', 'margin': '20px auto'}),
+
+    dcc.Interval(interval=1000, id="thermometer_interval"),
 ])
 
 
@@ -171,6 +185,12 @@ def read_switches(n_intervals):
 def thermo_callback(n_intervals):
     return float(thermometer.get())
 
+@app.callback(
+    Output('slider-output-container', 'children'),
+    Input('servo-slider', 'value')
+)
+def update_output(value):
+    return 'You have selected "{}"'.format(value)
 
 if __name__ == '__main__':
     app.run_server(debug=True, host="0.0.0.0")
