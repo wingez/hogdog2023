@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import numpy as np
 
 def interpolate_2(xy_values, output_length, resolution):
     x_values, y_values = zip(*xy_values)
