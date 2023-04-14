@@ -2,10 +2,13 @@
 import serial
 import time
 if __name__ == '__main__':
-    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
     ser.reset_input_buffer()
+    i_val = 79.00
     while True:
-        ser.write(b"3.14159\n")
+        ser.write(b" " + str(i_val).encode('utf-8') + b"\n")
         line = ser.readline().decode('utf-8').rstrip()
         print(line)
-        time.sleep(1)
+            #i_val = i_val + 1
+        i_val = input("Enter new kHz request: ")
+
