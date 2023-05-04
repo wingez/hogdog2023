@@ -12,3 +12,4 @@ if __name__ == '__main__':
             #i_val = i_val + 1
         i_val = input("Enter new kHz request: ")
 
+#oenauhsaonteuh

@@ -21,7 +21,7 @@ class Inputs:
     load1 = 5
     load2 = 12
     probe_button1 = 24
-    #probe_button2 = 23
+    probe_button2 = 23
 
 
 thermometer = MAX31855(11, 10, 9)
@@ -39,7 +39,7 @@ g.setup(Inputs.mayo, g.IN, pull_up_down=g.PUD_UP)
 g.setup(Inputs.load1, g.IN, pull_up_down=g.PUD_UP)
 g.setup(Inputs.load2, g.IN, pull_up_down=g.PUD_UP)
 g.setup(Inputs.probe_button1, g.IN, pull_up_down=g.PUD_UP)
-#g.setup(Inputs.probe_button2, g.IN, pull_up_down=g.PUD_UP)
+g.setup(Inputs.probe_button2, g.IN, pull_up_down=g.PUD_UP)
 
 
 kit = ServoKit(channels=16)
@@ -215,16 +215,32 @@ def update_output(value):
     return 'You have selected "{}"'.format(value)
 
 
-def callback_probe_button1(channel):
+def callback_probe_button1_RISE(channel):
     #time.sleep(0.1)
-    print("falling edge detected on 24")
 
-def callback_probe_button2(channel):
-    print("falling edge detected on 23")
+    print("RISING edge detected on 24")
+
+
+def callback_probe_button1_FALL(channel):
+    # time.sleep(0.1)
+
+    print("FALLING edge detected on 24")
+
+def callback_probe_button2_RISE(channel):
+    print("RISING edge detected on 23")
+
+def callback_probe_button2_FALL(channel):
+    # time.sleep(0.1)
+    print("FALLING edge detected on 23")
+
+    
 # when a falling edge is detected on port 24/23, regardless of whatever
 # else is happening in the program, the function my_callback will be run
-g.add_event_detect(24, g.FALLING, callback=callback_probe_button1, bouncetime=300)
-#g.add_event_detect(23, g.FALLING, callback=callback_probe_button2, bouncetime=300)
+g.add_event_detect(24, g.RISING, callback=callback_probe_button1_RISE, bouncetime=300)
+g.add_event_detect(24, g.FALLING, callback=callback_probe_button1_FALL, bouncetime=300)
+
+g.add_event_detect(23, g.RISING, callback=callback_probe_button2_RISE, bouncetime=300)
+g.add_event_detect(23, g.FALLING, callback=callback_probe_button2_FALL, bouncetime=300)
 
 if __name__ == '__main__':
     app.run_server(debug=True, host="0.0.0.0")
