@@ -38,13 +38,12 @@ class Inputs:
     mayo = Button(13, pull_up=True, inverted=True)
     load1 = Button(5, pull_up=True, inverted=True)
     load2 = Button(12, pull_up=True, inverted=True)
-    probe_button1 = Button(17, pull_up=True, inverted=True)
-    probe_button2 = Button(27, pull_up=True, inverted=True)
+    arm_top = Button(17, pull_up=True, inverted=True)
+    arm_bot = Button(27, pull_up=True, inverted=True)
 
 
-inputs = [Inputs.start, Inputs.kveg, Inputs.ketchup, Inputs.mayo, Inputs.load1, Inputs.load2, Inputs.probe_button1,
-          Inputs.probe_button2]
-
+inputs = [Inputs.start, Inputs.kveg, Inputs.ketchup, Inputs.mayo, Inputs.load1, Inputs.load2, Inputs.arm_top,
+          Inputs.arm_bot]
 
 for i in inputs:
     if i.pull_up:
@@ -72,6 +71,11 @@ class ButtonPressed(Guard):
 
     def evaluate(self) -> bool:
         return input_state[self.button]
+
+
+class ButtonNotPressed(ButtonPressed):
+    def evaluate(self) -> bool:
+        return not ButtonPressed.evaluate(self)
 
 
 def run_thread():

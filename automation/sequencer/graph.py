@@ -50,6 +50,11 @@ class Guard:
         return OrGuard(self, other)
 
 
+class OpenGuard(Guard):
+    def evaluate(self) -> bool:
+        return True
+
+
 class InverseGuard(Guard):
     def __init__(self, base: Guard):
         super().__init__()
