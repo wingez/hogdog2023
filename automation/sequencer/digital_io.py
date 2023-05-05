@@ -24,6 +24,7 @@ class Outputs:
     led1 = LED(26)
     led2 = LED(16)
     led3 = LED(19)
+    heat = LED(23)
 
 
 g.setup(Outputs.led1.pin, g.OUT)
