@@ -7,7 +7,15 @@
 #define PIN_ACTIVATE 7
 #define PIN_HEAT_REQUEST 8
 
+const unsigned int current_threshold=350;
 
+unsigned long msLastOvercurrent=0;
+
+const unsigned long backoffDurationMs=15*1000;
+
+unsigned long nextPrintMs = 0;
+
+int isActive=LOW;
 //Square wave on pin 9
 
 
@@ -17,6 +25,8 @@ unsigned long current_time = 0;
 unsigned long time_elapsed = 0;
 float fmodded_value = 0;
 uint16_t j_OCR = 200;
+
+float frequency_khz = 35.0;
 
 void update_timer(uint16_t ocr_val_new){
 
@@ -59,27 +69,20 @@ void setup() {
   pinMode(9,OUTPUT);
   Serial.begin(115200);
   setup_TCC();
+
+  setFrequencyKHz(frequency_khz);
 }
 
-
-void handleSerial(){
-
-
-  if (Serial.available() > 0) {
-    float value = Serial.parseFloat();
-    if(value != 0){ 
+void setFrequencyKHz(float value){
+    if(value != 0){
       fmodded_value = fmod(value, 80);
       j_OCR = 16000/(2*(fmodded_value)) - 1;
       update_timer(j_OCR);
-
     }
-  }
-
 }
 
-void loop() {
-  handleSerial();
 
+void printInfo(){
   Serial.print("current:");
   Serial.println(analogRead(PIN_CURR));
 
@@ -94,18 +97,50 @@ void loop() {
 
   Serial.print("temp_alarm:");
   Serial.println(digitalRead(PIN_TEMP_ALARM));
-  
+
 
   Serial.print("manual_alarm:");
   Serial.println(digitalRead(PIN_STOP_ALARM));
-  
-  
+
+
   Serial.print("heat_request:");
   Serial.println(digitalRead(PIN_HEAT_REQUEST));
 
-  digitalWrite(PIN_ACTIVATE, digitalRead(PIN_HEAT_REQUEST));
-  
-  delay(500);
 
+  Serial.print("is_active:");
+  Serial.println(isActive);
+
+
+}
+
+void loop() {
+
+  unsigned long currentMs = millis();
+
+  if(nextPrintMs < currentMs ) {
+    printInfo();
+    nextPrintMs = currentMs+500;
+  }
+
+
+  if(!digitalRead(PIN_HEAT_REQUEST)){
+    digitalWrite(PIN_ACTIVATE, LOW);
+  } else {
+
+    unsigned int current_sense = analogRead(PIN_CURR);
+
+
+    if(msLastOvercurrent==0 || currentMs>(msLastOvercurrent + backoffDurationMs)) {
+        isActive = HIGH;
+    }
+
+    if (current_sense>=current_threshold){
+        isActive = LOW;
+        msLastOvercurrent = currentMs;
+    }
+
+    digitalWrite(PIN_ACTIVATE, isActive);
+
+  }
 }
 
