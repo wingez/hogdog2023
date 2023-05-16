@@ -6,7 +6,7 @@ def servo_smoothed(start, end, step):
   return y_values_int
 
 
-def sigmoid(x, k=4):
+def sigmoid(x, k=3):
     return (1 / (1 + np.exp(-k *x)))
 
 

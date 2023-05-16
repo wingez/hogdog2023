@@ -56,7 +56,7 @@ def create_graph() -> State:
     wait_above_pickup2 = State("wait_above_pickup2")
     idle.add_transition(Transition(wait_above_pickup,
                                    guard=digital_io.ButtonPressed(digital_io.Inputs.start),
-                                   action=servo_control.ServoAngle(servo_control.upper_servo, 31)))
+                                   action=servo_control.SmoothServoAngle(servo_control.upper_servo, 31)))
 
     wait_above_pickup.add_transition(
         arm_up_down_transition(
@@ -71,7 +71,7 @@ def create_graph() -> State:
     wait_above_pickup2.add_transition(Transition(
         state=wait_above_heat,
         guard=OpenGuard(),
-        action=servo_control.ServoAngle(servo_control.upper_servo, 160)
+        action=servo_control.SmoothServoAngle(servo_control.upper_servo, 165)
     ))
 
     wait_above_heat.add_transition(arm_up_down_transition(
@@ -86,8 +86,8 @@ def create_graph() -> State:
         state=wait_above_bread,
         guard=OpenGuard(),
         action=MultiAction(
-            servo_control.ServoAngle(servo_control.upper_servo, 0),
-            servo_control.ServoAngle(servo_control.lower_servo, 49)
+            servo_control.SmoothServoAngle(servo_control.upper_servo, 0),
+            servo_control.SmoothServoAngle(servo_control.lower_servo, 49)
         )
 
     ))
@@ -107,8 +107,8 @@ def create_graph() -> State:
         state=wait_below_pull,
         guard=OpenGuard(),
         action=MultiAction(
-            servo_control.ServoAngle(servo_control.upper_servo, 13),
-            servo_control.ServoAngle(servo_control.lower_servo, 62)
+            servo_control.SmoothServoAngle(servo_control.upper_servo, 13),
+            servo_control.SmoothServoAngle(servo_control.lower_servo, 62)
         )
     ))
 
@@ -126,7 +126,7 @@ def create_graph() -> State:
     pulled.add_transition(Transition(
         state=idle,
         guard=OpenGuard(),
-        action=servo_control.ServoAngle(servo_control.lower_servo, 49)
+        action=servo_control.SmoothServoAngle(servo_control.lower_servo, 49)
     ))
 
     return idle
@@ -136,4 +136,5 @@ if __name__ == '__main__':
     console.start()
     digital_io.start()
     temp_sensor.start()
+    servo_control.start()
     run(create_graph())

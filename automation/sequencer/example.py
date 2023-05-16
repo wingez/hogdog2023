@@ -6,6 +6,30 @@ from automation.sequencer import digital_io, servo_control
 
 
 def create_tree() -> State:
+
+
+y_servo
+
+    s1 = State("s1")
+    s2 = State("s2")
+
+    s1.add_transition(Transition(
+        state=s2,
+        guard=digital_io.ButtonPressed(digital_io.Inputs.start),
+        action=servo_control.SmoothServoAngle(servo_control.upper_servo,165)
+    ))
+
+    s2.add_transition(Transition(
+        state=s1,
+        guard=servo_control.ServoIdle(servo_control.upper_servo),  # digital_io.ButtonNotPressed(digital_io.Inputs.kveg)),
+        action=servo_control.SmoothServoAngle(servo_control.upper_servo, 0),
+    ))
+
+    return s1
+
+
+
+
     s1 = State("waiting")
     s2 = State("s2")
     s3 = State("s3")
@@ -39,22 +63,6 @@ def create_tree() -> State:
     return s1
 
 
-    s1 = State("s1")
-    s2 = State("s2")
-
-    s1.add_transition(Transition(
-        state=s2,
-        guard=digital_io.ButtonPressed(digital_io.Inputs.start),
-        action=servo_control.ServoSpeed(servo_control.arm_servo, -0.1)
-    ))
-
-    s2.add_transition(Transition(
-        state=s1,
-        guard=DelayGuard(1),  # digital_io.ButtonNotPressed(digital_io.Inputs.kveg)),
-        action=servo_control.ServoSpeed(servo_control.arm_servo, 0),
-    ))
-
-    return s1
 
     s1 = State("s1")
     s2 = State("s2")
@@ -114,4 +122,5 @@ def create_tree() -> State:
 if __name__ == '__main__':
     console.start()
     digital_io.start()
+    servo_control.start()
     run(create_tree())

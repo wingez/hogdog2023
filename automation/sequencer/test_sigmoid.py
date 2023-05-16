@@ -9,7 +9,7 @@ def servo_smoothed(start, end, step):
   return y_values_int
 
 
-def sigmoid(x, k=4):
+def sigmoid(x, k=3):
     return (1 / (1 + np.exp(-k *x)))
 
 
@@ -25,12 +25,11 @@ if __name__ == '__main__':
   # Create a new figure and axis object
   fig, ax = plt.subplots()
 
+  plt.xlabel("time")
+  plt.ylabel("angle")
   # Plot the (x, y) values as a scatter plot
-  ax.scatter(x_values, y_servo)
+  ax.scatter(x_values, y_servo_int)
 
-  # Set the axis labels
-  ax.set_xlabel('X')
-  ax.set_ylabel('Y')
 
   # Show the plot
   plt.show()
