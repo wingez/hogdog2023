@@ -100,6 +100,11 @@ class Action:
     def execute(self):
         pass
 
+    def __add__(self, other):
+        if not isinstance(other, Action):
+            return NotImplemented
+        return MultiAction(self, other)
+
 
 class MultiAction(Action):
     def __init__(self, *actions: Action):

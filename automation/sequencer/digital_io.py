@@ -15,7 +15,7 @@ class Button:
     inverted: bool = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class LED:
     pin: int
 
@@ -30,6 +30,17 @@ class Outputs:
 g.setup(Outputs.led1.pin, g.OUT)
 g.setup(Outputs.led2.pin, g.OUT)
 g.setup(Outputs.led3.pin, g.OUT)
+
+output_state = {i: False for i in [
+    Outputs.led1,
+    Outputs.led2,
+    Outputs.led3,
+]}
+
+
+def set_output(led: LED, state: bool):
+    output_state[led] = state
+    g.output(led.pin, state)
 
 
 class Inputs:
@@ -55,14 +66,24 @@ for i in inputs:
 input_state = {i: False for i in inputs}
 
 
-class LEDState(Action):
+class LEDSet(Action):
+    def __init__(self, led: LED, state: bool):
+        super(LEDSet, self).__init__()
+        self.led = led
+        self.state = state
+
+    def execute(self):
+        set_output(self.led, self.state)
+
+
+class LEDState(Guard):
     def __init__(self, led: LED, state: bool):
         super(LEDState, self).__init__()
         self.led = led
         self.state = state
 
-    def execute(self):
-        g.output(self.led.pin, self.state)
+    def evaluate(self) -> bool:
+        return output_state[self.led] == self.state
 
 
 class ButtonPressed(Guard):

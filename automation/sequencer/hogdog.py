@@ -3,7 +3,7 @@ import time
 from automation.sequencer import console, temp_sensor
 from automation.sequencer.graph import State, Transition, DelayGuard, PrintAction, run, MultiAction, AndGuard, Guard, \
     OrGuard, OpenGuard
-from automation.sequencer import digital_io, servo_control
+from automation.sequencer import digital_io, servo_control, inventory
 
 arm_up_down_speed = 0.3
 
@@ -51,12 +51,48 @@ def arm_up_down_transition(guard: Guard, move_up_guard: Guard, continuation_stat
 def create_graph() -> State:
     idle = State("idle")
 
-    wait_above_pickup = State("wait_above_pickup")
+    # transitions regarding refill
 
+    for hogdog_type, input, output in [
+        (inventory.HogDogType.Veg, digital_io.Inputs.load2, digital_io.Outputs.led2),
+        (inventory.HogDogType.Meat, digital_io.Inputs.load1, digital_io.Outputs.led1),
+    ]:
+        # Turn on led if refill needed
+        idle.add_transition(Transition(
+            idle,
+            guard=inventory.HasType(hogdog_type).inverse() & digital_io.LEDState(output, False),
+            action=digital_io.LEDSet(output, True)
+        ))
+        # Refill if button pressed
+        idle.add_transition(Transition(
+            idle,
+            guard=digital_io.ButtonPressed(input) & inventory.HasType(hogdog_type).inverse(),
+            action=inventory.Refill(hogdog_type) + digital_io.LEDSet(output, False)
+        ))
+
+    # state for waiting above selected hogdog, before picking up
+    wait_above_pickup = State("wait_above_pickup")
+    # state for waiting above selected hogdog, with hogdog on stick
     wait_above_pickup2 = State("wait_above_pickup2")
-    idle.add_transition(Transition(wait_above_pickup,
-                                   guard=digital_io.ButtonPressed(digital_io.Inputs.start),
-                                   action=servo_control.SmoothServoAngle(servo_control.upper_servo, 31)))
+
+    # add transitions for all available spaces
+    for hogdog_type, hogdog_place in inventory.all_places():
+
+        switch_at_correct_type: Guard
+        if hogdog_type == inventory.HogDogType.Veg:
+            switch_at_correct_type = digital_io.ButtonNotPressed(digital_io.Inputs.kveg)
+        elif hogdog_type == inventory.HogDogType.Meat:
+            switch_at_correct_type = digital_io.ButtonPressed(digital_io.Inputs.kveg)
+        else:
+            raise AssertionError()
+
+        idle.add_transition(Transition(wait_above_pickup,
+                                       guard=digital_io.ButtonPressed(
+                                           digital_io.Inputs.start) & switch_at_correct_type & inventory.HasHogDog(
+                                           hogdog_type, hogdog_place),
+                                       action=inventory.MoveToHogDog(hogdog_type, hogdog_place) + inventory.PickUp(
+                                           hogdog_type, hogdog_place)
+                                       ))
 
     wait_above_pickup.add_transition(
         arm_up_down_transition(
@@ -67,6 +103,12 @@ def create_graph() -> State:
 
     wait_above_heat = State("wait_above_heat")
     wait_above_heat2 = State("wait_above_heat2")
+
+   #wait_above_pickup2.add_transition(Transition(
+   #    idle,
+   #    guard=OpenGuard(),
+   #    action=MultiAction(),
+   #))
 
     wait_above_pickup2.add_transition(Transition(
         state=wait_above_heat,
@@ -137,4 +179,6 @@ if __name__ == '__main__':
     digital_io.start()
     temp_sensor.start()
     servo_control.start()
+    inventory.start()
+
     run(create_graph())

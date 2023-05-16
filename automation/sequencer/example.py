@@ -92,14 +92,14 @@ y_servo
         state=s2,
         guard=digital_io.ButtonPressed(digital_io.Inputs.start),
         action=MultiAction(PrintAction("transition to s2"),
-                           digital_io.LEDState(digital_io.Outputs.led1, True)),
+                           digital_io.LEDSet(digital_io.Outputs.led1, True)),
     ))
 
     s2.add_transition(Transition(
         state=s1,
         guard=console.KeyPressedGuard("1"),
         action=MultiAction(PrintAction("transition to s1"),
-                           digital_io.LEDState(digital_io.Outputs.led1, False)),
+                           digital_io.LEDSet(digital_io.Outputs.led1, False)),
 
     ))
 
@@ -113,7 +113,7 @@ y_servo
         state=s1,
         guard=DelayGuard(3),
         action=MultiAction(PrintAction("transition to s1"),
-                           digital_io.LEDState(digital_io.Outputs.led1, False))
+                           digital_io.LEDSet(digital_io.Outputs.led1, False))
     ))
 
     return s1
