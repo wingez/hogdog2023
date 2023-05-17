@@ -66,7 +66,7 @@ def create_graph() -> State:
         # Refill if button pressed
         idle.add_transition(Transition(
             idle,
-            guard=digital_io.ButtonPressed(input) & inventory.HasType(hogdog_type).inverse(),
+            guard=digital_io.ButtonPressed(input),
             action=inventory.Refill(hogdog_type) + digital_io.LEDSet(output, False)
         ))
 
