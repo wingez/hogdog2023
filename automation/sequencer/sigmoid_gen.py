@@ -2,11 +2,11 @@ import numpy as np
 
 def servo_smoothed(start, end, step):
   #LINSPACE MUST BE FROM -1.5 to 1.5 due to rounding problems (Higher eg. -2,2 is fine aswell)
-  y_values_int = [ round((end-start)*sigmoid(x)+start) for x in np.linspace(-1.5, 1.5, step)]
+  y_values_int = [ round((end-start)*sigmoid(x)+start) for x in np.linspace(-2.2, 2.2, step)]
   return y_values_int
 
 
-def sigmoid(x, k=3):
+def sigmoid(x, k=2.2):
     return (1 / (1 + np.exp(-k *x)))
 
 

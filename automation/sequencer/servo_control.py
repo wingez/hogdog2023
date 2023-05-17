@@ -11,7 +11,7 @@ from automation.sequencer import sigmoid_gen
 lower_servo = 0
 upper_servo = 6
 
-arm_servo = 9
+arm_servo = 12
 
 move_time_s = 3
 last_move_time = datetime.now()
@@ -77,7 +77,7 @@ class SmoothServoAngle(Action):
         start_angle = latest_servo_angles[self.servo]
         end_angle = self.angle
 
-        steps = int(abs(start_angle - end_angle) / 25 * 100)
+        steps = int(abs(start_angle - end_angle) / 50 * 100)
 
         angles = sigmoid_gen.servo_smoothed(start_angle, end_angle, steps)
 

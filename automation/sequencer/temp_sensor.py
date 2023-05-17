@@ -21,7 +21,10 @@ class TempAbove(Guard):
 def run_thread():
     global last_reading
     while True:
-        last_reading = thermometer.get()
+        try:
+            last_reading = thermometer.get()
+        except Exception:
+            pass
         print("Thermometer: ", last_reading)
         time.sleep(2)
 

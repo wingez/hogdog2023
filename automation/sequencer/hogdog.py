@@ -13,7 +13,7 @@ def arm_down_transition(guard: Guard, continuation_state: State) -> Transition:
 
     move_down_state.add_transition(Transition(
         state=continuation_state,
-        guard=OrGuard(digital_io.ButtonPressed(digital_io.Inputs.arm_bot), DelayGuard(3)),
+        guard=OrGuard(digital_io.ButtonPressed(digital_io.Inputs.arm_bot), DelayGuard(6)),
         action=servo_control.ServoSpeed(servo_control.arm_servo, 0)
     ))
 
@@ -29,7 +29,7 @@ def arm_up_transition(guard: Guard, continuation_state: State) -> Transition:
 
     move_up_state.add_transition(Transition(
         state=continuation_state,
-        guard=OrGuard(digital_io.ButtonPressed(digital_io.Inputs.arm_top), DelayGuard(3)),
+        guard=OrGuard(digital_io.ButtonPressed(digital_io.Inputs.arm_top), DelayGuard(6)),
         action=servo_control.ServoSpeed(servo_control.arm_servo, 0)
     ))
 
@@ -113,12 +113,12 @@ def create_graph() -> State:
     wait_above_pickup2.add_transition(Transition(
         state=wait_above_heat,
         guard=OpenGuard(),
-        action=servo_control.SmoothServoAngle(servo_control.upper_servo, 165)
+        action=servo_control.SmoothServoAngle(servo_control.upper_servo, 161)
     ))
 
     wait_above_heat.add_transition(arm_up_down_transition(
         guard=servo_control.ServoIdle(servo_control.upper_servo),
-        move_up_guard=DelayGuard(2),
+        move_up_guard=DelayGuard(60) | digital_io.ButtonPressed(digital_io.Inputs.start),
         continuation_state=wait_above_heat2
     ))
 
