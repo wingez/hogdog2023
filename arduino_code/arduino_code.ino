@@ -1,4 +1,6 @@
 
+#include "definitions.h"
+
 #define PIN_CURR A0
 #define PIN_CURR_ALARM 12
 #define PIN_TEMP_ALARM 11
@@ -82,6 +84,74 @@ void setFrequencyKHz(float value){
 }
 
 
+coordinate2d_t coord_array[] =
+   {
+   {53.32, 120},
+   {60.66, 115},
+   {69.15, 110},
+   {79.00, 105},
+   {90.45, 100},
+   {103.8 , 95},
+   {119.4, 90},
+   {137.7 , 85},
+   {159.3, 80},
+   {184.7, 75},
+   {214.9, 70},
+   {250.8, 65},
+   {293.7, 60},
+   {345.2, 55},
+   {407.4, 50},
+   {482.7, 45},
+   {574.6, 40},
+   {687.3, 35},
+   {826.6, 30},
+   {1000, 25},
+   {1217, 20},
+   {1491, 15},
+   {1838, 10},
+   {2282, 5},
+   {2854, 0},
+    };
+
+//Takes coordinate_array, certain x and size of coord_array
+float interpolate(coordinate2d_t *coord_array, int n, float x) {
+    float x_diff = 0;
+    float consec_diff = 0;
+
+    for(int i = 0; i < n-1; i++) { //loops through array
+        //checks if requested x val is between 2 cosecutive values
+        if (coord_array[i].x <= x && coord_array[i+1].x >= x ) {
+            x_diff = x - coord_array[i].x;
+            consec_diff = coord_array[i+1].x - coord_array[i].x;
+            //returns lowerbound + linear interpolation
+            return coord_array[i].y + (coord_array[i+1].y - coord_array[i].y) * x_diff/consec_diff;
+        }
+    }
+
+    return -1; //neg for illegal interpolation
+}
+
+
+void printTemp(){
+
+    float q = ((float) analogRead(PIN_TEMP)) / 1024.0f;
+
+    float r = 330;
+
+    float n = (q*r)/(1.0f-q);
+
+    float tmp = interpolate(coord_array, sizeof(coord_array)/sizeof(coordinate2d_t), n);
+
+
+
+    Serial.print("temp:");
+    Serial.println(tmp);
+
+
+
+}
+
+
 void printInfo(){
   Serial.print("current:");
   Serial.println(analogRead(PIN_CURR));
@@ -90,10 +160,7 @@ void printInfo(){
   Serial.print("current_alarm:");
   Serial.println(digitalRead(PIN_CURR_ALARM));
 
-
-  Serial.print("temp:");
-  Serial.println(analogRead(PIN_TEMP));
-
+  printTemp();
 
   Serial.print("temp_alarm:");
   Serial.println(digitalRead(PIN_TEMP_ALARM));
@@ -143,4 +210,3 @@ void loop() {
 
   }
 }
-
