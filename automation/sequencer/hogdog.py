@@ -13,7 +13,7 @@ def arm_down_transition(guard: Guard, continuation_state: State) -> Transition:
 
     move_down_state.add_transition(Transition(
         state=continuation_state,
-        guard=OrGuard(digital_io.ButtonPressed(digital_io.Inputs.arm_bot), DelayGuard(6)),
+        guard=OrGuard(digital_io.ButtonPressed(digital_io.Inputs.arm_bot), DelayGuard(6)) & DelayGuard(2.5),
         action=servo_control.ServoSpeed(servo_control.arm_servo, 0)
     ))
 
@@ -29,7 +29,7 @@ def arm_up_transition(guard: Guard, continuation_state: State) -> Transition:
 
     move_up_state.add_transition(Transition(
         state=continuation_state,
-        guard=OrGuard(digital_io.ButtonPressed(digital_io.Inputs.arm_top), DelayGuard(6)),
+        guard=OrGuard(digital_io.ButtonPressed(digital_io.Inputs.arm_top), DelayGuard(6)) & DelayGuard(2.5),
         action=servo_control.ServoSpeed(servo_control.arm_servo, 0)
     ))
 
@@ -129,7 +129,7 @@ def create_graph() -> State:
         guard=OpenGuard(),
         action=MultiAction(
             servo_control.SmoothServoAngle(servo_control.upper_servo, 0),
-            servo_control.SmoothServoAngle(servo_control.lower_servo, 49)
+            servo_control.SmoothServoAngle(servo_control.lower_servo, 52)
         )
 
     ))
@@ -168,7 +168,7 @@ def create_graph() -> State:
     pulled.add_transition(Transition(
         state=idle,
         guard=OpenGuard(),
-        action=servo_control.SmoothServoAngle(servo_control.lower_servo, 49)
+        action=servo_control.SmoothServoAngle(servo_control.lower_servo, 52)
     ))
 
     return idle
