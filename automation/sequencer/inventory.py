@@ -5,7 +5,7 @@ import itertools as it
 from automation.sequencer.graph import Guard, Action
 from automation.sequencer import servo_control
 
-PLACES_PER_TYPE = 2
+PLACES_PER_TYPE = 5
 
 
 class HogDogType(Enum):

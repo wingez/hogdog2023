@@ -13,7 +13,7 @@ upper_servo = 6
 
 arm_servo = 12
 
-move_time_s = 3
+move_time_s = 0.5
 last_move_time = datetime.now()
 
 arm_down = -1

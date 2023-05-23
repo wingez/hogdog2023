@@ -1,11 +1,16 @@
-import time
-
 from automation.sequencer import console, temp_sensor
 from automation.sequencer.graph import State, Transition, DelayGuard, PrintAction, run, MultiAction, AndGuard, Guard, \
     OrGuard, OpenGuard
 from automation.sequencer import digital_io, servo_control, inventory
 
 arm_up_down_speed = 0.3
+
+cooking_time_s = 36
+
+button_cooking_time = digital_io.Inputs.ketchup
+button_marshmallow_mode = digital_io.Inputs.mayo
+
+angle_heating = 161
 
 
 def arm_down_transition(guard: Guard, continuation_state: State) -> Transition:
@@ -86,6 +91,9 @@ def create_graph() -> State:
         else:
             raise AssertionError()
 
+        # Only do this if not in marshmallow-mode
+        switch_at_correct_type = switch_at_correct_type & digital_io.ButtonNotPressed(button_marshmallow_mode)
+
         idle.add_transition(Transition(wait_above_pickup,
                                        guard=digital_io.ButtonPressed(
                                            digital_io.Inputs.start) & switch_at_correct_type & inventory.HasHogDog(
@@ -96,7 +104,7 @@ def create_graph() -> State:
 
     wait_above_pickup.add_transition(
         arm_up_down_transition(
-            guard=servo_control.ServoIdle(servo_control.upper_servo),
+            guard=servo_control.ServoIdle(servo_control.upper_servo) & DelayGuard(3),
             move_up_guard=DelayGuard(2),
             continuation_state=wait_above_pickup2,
         ))
@@ -104,29 +112,47 @@ def create_graph() -> State:
     wait_above_heat = State("wait_above_heat")
     wait_above_heat2 = State("wait_above_heat2")
 
-   #wait_above_pickup2.add_transition(Transition(
-   #    idle,
-   #    guard=OpenGuard(),
-   #    action=MultiAction(),
-   #))
+    # wait_above_pickup2.add_transition(Transition(
+    #    idle,
+    #    guard=OpenGuard(),
+    #    action=MultiAction(),
+    # ))
+
+    # marshmallow mode
+
+    idle.add_transition(Transition(
+        wait_above_heat,
+        digital_io.ButtonPressed(button_marshmallow_mode) & digital_io.ButtonPressed(digital_io.Inputs.start),
+        action=servo_control.SmoothServoAngle(servo_control.upper_servo, angle_heating)
+    ))
+
+    # hogdog mode
 
     wait_above_pickup2.add_transition(Transition(
         state=wait_above_heat,
         guard=OpenGuard(),
-        action=servo_control.SmoothServoAngle(servo_control.upper_servo, 161)
+        action=servo_control.SmoothServoAngle(servo_control.upper_servo, angle_heating)
     ))
 
     wait_above_heat.add_transition(arm_up_down_transition(
         guard=servo_control.ServoIdle(servo_control.upper_servo),
-        move_up_guard=DelayGuard(60) | digital_io.ButtonPressed(digital_io.Inputs.start),
+        move_up_guard=(DelayGuard(cooking_time_s) & digital_io.ButtonPressed(
+            button_cooking_time)) | digital_io.ButtonPressed(digital_io.Inputs.start),
         continuation_state=wait_above_heat2
     ))
 
     wait_above_bread = State("wait above bread")
 
     wait_above_heat2.add_transition(Transition(
+        idle,
+        guard=digital_io.ButtonPressed(button_marshmallow_mode),
+        action=servo_control.SmoothServoAngle(servo_control.upper_servo, 13),
+
+    ))
+
+    wait_above_heat2.add_transition(Transition(
         state=wait_above_bread,
-        guard=OpenGuard(),
+        guard=digital_io.ButtonNotPressed(button_marshmallow_mode),
         action=MultiAction(
             servo_control.SmoothServoAngle(servo_control.upper_servo, 0),
             servo_control.SmoothServoAngle(servo_control.lower_servo, 52)
